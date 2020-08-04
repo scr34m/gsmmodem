@@ -182,8 +182,7 @@ func (self *Modem) listen() {
 				continue
 			}
 
-			// wait data + ok, ok, error
-			log.Printf("--- IN: %v\n", line)
+			// log.Printf("--- IN: %v\n", line)
 
 			// final message (OK, ERROR) or we have a body but reading new command
 			if isFinalStatus(line) || (body != "" && strings.HasPrefix(line, "+")) {
@@ -213,7 +212,7 @@ func (self *Modem) listen() {
 				last = m[1]
 			}
 			echo = strings.TrimRight(line, "\r\n")
-			log.Printf("OUT: %v\n", echo)
+			// log.Printf("OUT: %v\n", echo)
 			self.port.Write([]byte(line))
 		}
 	}
