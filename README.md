@@ -1,3 +1,8 @@
+## Go library for GSM modems
+
+A Go library for the receiving SMS messages through a GSM modem.
+Rewrite of https://github.com/barnybug/gogsmmodem
+
 ### Tested devices
 - Huawei K3556
 
@@ -23,6 +28,7 @@ func main() {
 		panic(err)
 	}
 
+	// Read messages stored on the SIM
 	list, err := modem.ListMessages()
 	if err != nil {
 		panic(err)
@@ -33,6 +39,7 @@ func main() {
 		modem.DeleteMessage(msg.Index)
 	}
 
+	// Switch to receiver mode so notifications received on every new message
 	err = modem.ReaderMode()
 	if err != nil {
 		panic(err)
