@@ -22,8 +22,15 @@ type Modem struct {
 	Receiver chan Packet
 }
 
-func Open(name string, baud int, pin string) (*Modem, error) {
-	port, err := serial.OpenPort(&serial.Config{Name: name, Baud: baud})
+var OpenPort = func(config *serial.Config) (io.ReadWriteCloser, error) {
+	return serial.OpenPort(config)
+}
+
+func Open(name string, baud int, pin string, debug bool) (*Modem, error) {
+	port, err := OpenPort(&serial.Config{Name: name, Baud: baud})
+	if debug {
+		port = LogReadWriteCloser{port}
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -182,8 +189,6 @@ func (self *Modem) listen() {
 				continue
 			}
 
-			// log.Printf("--- IN: %v\n", line)
-
 			// final message (OK, ERROR) or we have a body but reading new command
 			if isFinalStatus(line) || (body != "" && strings.HasPrefix(line, "+")) {
 				packet := parsePacket(last, body)
@@ -212,7 +217,6 @@ func (self *Modem) listen() {
 				last = m[1]
 			}
 			echo = strings.TrimRight(line, "\r\n")
-			// log.Printf("OUT: %v\n", echo)
 			self.port.Write([]byte(line))
 		}
 	}
@@ -313,6 +317,7 @@ func (self *Modem) init() error {
 	return nil
 }
 
+// ReadMode set on notification mode about incoming messages
 func (self *Modem) ReaderMode() error {
 	// forward new messages to the PC
 	if _, err := self.sendRaw("+CNMI", "1,1"); err != nil {
@@ -358,6 +363,7 @@ func (self *Modem) GetMessage(n int) (*Message, error) {
 	return nil, errors.New("Message not found")
 }
 
+// DeleteMessage by index n from memory.
 func (self *Modem) DeleteMessage(n int) error {
 	_, err := self.send("+CMGD", n)
 	return err
