@@ -4,14 +4,14 @@ import (
 	"bufio"
 	"encoding/hex"
 	"errors"
+	"github.com/tarm/serial"
+	"github.com/xlab/at/sms"
 	"io"
 	"log"
+	"os"
 	"regexp"
 	"strings"
 	"time"
-
-	"github.com/tarm/serial"
-	"github.com/xlab/at/sms"
 )
 
 type Modem struct {
@@ -29,7 +29,7 @@ var OpenPort = func(config *serial.Config) (io.ReadWriteCloser, error) {
 func Open(name string, baud int, pin string, debug bool) (*Modem, error) {
 	port, err := OpenPort(&serial.Config{Name: name, Baud: baud})
 	if debug {
-		port = LogReadWriteCloser{port}
+		port = LogReadWriteCloser{port, log.New(os.Stderr, "", 0)}
 	}
 	if err != nil {
 		return nil, err
