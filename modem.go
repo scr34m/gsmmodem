@@ -272,6 +272,11 @@ func (self *Modem) init() error {
 	}
 	log.Println("Enable use of result codes")
 
+	if _, err := self.send("^CURC", 0); err != nil {
+		return err
+	}
+	log.Println("Unsolicited commands off (Huawei specific)")
+
 	msg, err := self.send("+GMM")
 	if err != nil {
 		return err
