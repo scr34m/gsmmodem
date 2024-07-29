@@ -125,10 +125,13 @@ func parsePacket(header, body string) Packet {
 		// TODO: TEXT type
 		bs, err2 := hex.DecodeString(args[4].(string))
 		if err2 != nil {
-			panic(err)
+			panic(err2)
 		}
 		msg := new(sms.Message)
-		msg.ReadFrom(bs)
+		_, err3 := msg.ReadFrom(bs)
+		if err3 != nil {
+			panic(err3)
+		}
 		return Message{Index: args[0].(int), Telephone: string(msg.Address), Timestamp: time.Time(msg.ServiceCenterTime), Body: msg.Text}
 	case "+CMGR":
 		args, err := parsePacketBody(body)
@@ -141,10 +144,13 @@ func parsePacket(header, body string) Packet {
 		// TODO: TEXT type
 		bs, err2 := hex.DecodeString(args[3].(string))
 		if err2 != nil {
-			panic(err)
+			panic(err2)
 		}
 		msg := new(sms.Message)
-		msg.ReadFrom(bs)
+		_, err3 := msg.ReadFrom(bs)
+		if err3 != nil {
+			panic(err3)
+		}
 		return Message{Index: args[0].(int), Telephone: string(msg.Address), Timestamp: time.Time(msg.ServiceCenterTime), Body: msg.Text}
 	case "+CPMS":
 		args, err := parsePacketBody(body)
